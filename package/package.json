@@ -1,0 +1,35 @@
+{
+  "name": "utils-logger-av",
+  "version": "1.0.0",
+  "author": "Alessio Velluso",
+  "license": "MIT",
+  "description": "Backend colored logs",
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5"
+  },
+  "repository": {
+    "url": "https://github.com/alessioVelluso/UtilsLogger"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "keywords": [
+    "log",
+    "utilities",
+    "utils",
+    "color",
+    "backend"
+  ]
+}
