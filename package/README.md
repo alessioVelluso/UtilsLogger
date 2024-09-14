@@ -2,7 +2,7 @@
 
 
 
-`v1.0.0`
+`v1.0.1`
 
 This is a package i made for myself but can surely be helpful to others, feel free to contribute if you like it.
 
@@ -17,7 +17,7 @@ npm install utils-logger-av
 The Logger is just an exported class, the interface is as it follows:
 
 ```ts
-interface IGenericUtils {
+interface ILogger {
 	log: (message:any, color:LogColors) => void;
     logColor: (coloredMessage:any, ...messages:any[]) => void;
     logDetail: (...messages:any[]) => void;
@@ -33,10 +33,9 @@ protected readonly dateLocale:DateLocales = "it-IT";
 protected readonly primaryColor:LogColors = "cyan";
 constructor(data?:LoggerConstructor) {
 	if (data?.logFilePath) this.fileStream = createWriteStream(data.logFilePath, { flags: 'a' });
-	if (data?.debug) this.isDebug = data.debug;
-	if (data?.locale) this.dateLocale = data.locale;
-	if (data?.primaryColor) this.primaryColor = data.primaryColor;
 }
+
+export interface LoggerConstructor { logFilePath?:string, debug?:boolean, locale?: DateLocales, primaryColor?:LogColors }
 ```
 
 
