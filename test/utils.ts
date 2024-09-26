@@ -1,10 +1,27 @@
-import { Logger } from "utils-logger";
+import { FileLogType, Logger } from "utils-logger-av";
 
 // You can override  it to use it a class for all your different utils, or simply use the default class like
-// const gu = new GenericUtils();
-// Anyway, i suggest it to use it in a static way, so creating a single object and exporting it for all the project.
+// export default new Logger({
+//     debug:true,
+//     logFilePath: "../files/logs.txt"
+// });
 
-export default new Logger({
+
+// Anyway, i suggest it to use it in a static way, so creating a single object and exporting it for all the project.
+// (you can obviously avoid to create a class extending mine)
+class MyLogger extends Logger
+{
+    public baseFile = (message:any, type:FileLogType, isClosing:boolean = true) => {
+        this.base(message);
+        this.logFile(message, type, isClosing)
+    }
+}
+
+const log = new MyLogger({
     debug:true,
-    logFilePath: "../files/logs.txt"
+    logFilePath: "../files/logs.txt",
+    primaryColor: "cyan"
 });
+
+
+export { log };

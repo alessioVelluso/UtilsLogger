@@ -1,11 +1,28 @@
 import { WriteStream, createWriteStream } from "fs";
-import { LogColors, LoggerConstructor, DateLocales } from "../types/generic.types";
+import { DateLocales, FileLogType, LogColors, LoggerConstructor } from "../types/generic.types";
 
 export interface ILogger {
-    log: (message:any, color?:LogColors) => void;
-    logColor: (coloredMessage:any, ...messages:any[]) => void;
-    logDetail: (...messages:any[]) => void;
-    logError: (...errs:any[]) => void;
+    // log: (message:any, color?:LogColors) => void;
+    // logColor: (coloredMessage:any, ...messages:any[]) => void;
+    logDetail: (coloredMessage:any, ...messages:any[]) => void;
+    logError: (coloredMessage:any,...errs:any[]) => void;
+
+    base: (coloredMessage:any, ...messages:any[]) => void;
+    white: (coloredMessage:any, ...messages:any[]) => void;
+    green: (coloredMessage:any,...messages:any[]) => void;
+    yellow: (coloredMessage:any,...messages:any[]) => void;
+    blue: (coloredMessage:any,...messages:any[]) => void;
+    magenta: (coloredMessage:any,...messages:any[]) => void;
+    cyan: (coloredMessage:any,...messages:any[]) => void;
+    gray: (coloredMessage:any,...messages:any[]) => void;
+    orange: (coloredMessage:any,...messages:any[]) => void;
+    pink: (coloredMessage:any,...messages:any[]) => void;
+    purple: (coloredMessage:any,...messages:any[]) => void;
+    teal: (coloredMessage:any,...messages:any[]) => void;
+    brown: (coloredMessage:any,...messages:any[]) => void;
+    lime: (coloredMessage:any,...messages:any[]) => void;
+    gold: (coloredMessage:any,...messages:any[]) => void;
+    violet: (coloredMessage:any,...messages:any[]) => void;
 
     logFile: (message:string, type?:"log" | "error", isClosing?:boolean) => void;
 }
@@ -16,13 +33,18 @@ export default class Logger implements ILogger
     private readonly fileStream:WriteStream = null!;
     private readonly isDebug:boolean = true;
     protected readonly dateLocale:DateLocales = "it-IT";
-    protected readonly primaryColor:LogColors = "cyan";
+    protected readonly primaryColor:LogColors = null;
+    protected readonly isErrorStackFull:boolean = false;
     constructor(data?:LoggerConstructor) {
         if (data?.logFilePath) this.fileStream = createWriteStream(data.logFilePath, { flags: 'a' });
         if (data?.debug) this.isDebug = data.debug;
         if (data?.locale) this.dateLocale = data.locale;
         if (data?.primaryColor) this.primaryColor = data.primaryColor;
+        if (data?.isErrorStackFull !== undefined) this.isErrorStackFull = data.isErrorStackFull
     }
+
+
+
 
 
     protected readonly dateOptions: Intl.DateTimeFormatOptions | undefined = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -34,17 +56,25 @@ export default class Logger implements ILogger
         blue: "\x1b[34m%s\x1b[0m",
         magenta: "\x1b[35m%s\x1b[0m",
         cyan: "\x1b[36m%s\x1b[0m",
-        gray: "\x1b[90m%s\x1b[0m"
+        gray: "\x1b[90m%s\x1b[0m",
+        orange: "\x1b[38;5;214m%s\x1b[0m",
+        pink: "\x1b[38;5;13m%s\x1b[0m",
+        purple: "\x1b[38;5;93m%s\x1b[0m",
+        teal: "\x1b[38;5;44m%s\x1b[0m",
+        brown: "\x1b[38;5;94m%s\x1b[0m",
+        lime: "\x1b[38;5;118m%s\x1b[0m",
+        gold: "\x1b[38;5;220m%s\x1b[0m",
+        violet: "\x1b[38;5;177m%s\x1b[0m"
     }
 
 
 
-    private getDateTimeString = () => {
+    protected getDateTimeString = () => {
         const dateObj = new Date();
         return `[${dateObj.toLocaleDateString(this.dateLocale, this.dateOptions)} ${dateObj.toLocaleTimeString(this.dateLocale, this.timeOptions)}]   `;
     }
 
-    log = (message:any, color:LogColors = null) => {
+    protected _log = (message:any, color:LogColors = null) => {
         if (!this.isDebug) return;
 
         const dateString = this.getDateTimeString();
@@ -55,14 +85,8 @@ export default class Logger implements ILogger
         }
     }
 
-    logColor = (coloredMessage:any, ...messages:any[]) => {
-        if (!this.isDebug) return;
 
-        this.log(coloredMessage, this.primaryColor);
-        for (let i = 0; i < messages.length; i++) {
-            this.logDetail(messages[i]);
-        }
-    }
+
 
 
     logDetail = (...messages:any[]) => {
@@ -83,20 +107,49 @@ export default class Logger implements ILogger
 
         for(const err of errs) {
             if (err.message) errorMessage = err.message;
-            if (err.stack) stackTrace = err.stack.split("\n")[1];
+            if (err.stack) {
+                if (this.isErrorStackFull) stackTrace = err.stack
+                else stackTrace = err.stack.split("\n")[1];
+            }
 
-            if (!errorMessage) this.log(err, "red");
+            if (!errorMessage) this._log(err, "red");
             else {
-                this.log(errorMessage, "red")
+                this._log(errorMessage, "red")
                 if (stackTrace) console.log(this.colors["gray"], stackTrace)
             }
         }
     }
 
+    color = (color:LogColors, coloredMessage:any, ...messages:any[]) => {
+        if (!this.isDebug) return;
+
+        this._log(coloredMessage, color);
+        for (let i = 0; i < messages.length; i++) {
+            this.logDetail(messages[i]);
+        }
+    }
 
 
-    logFile = (message:string, type:"log" | "error" = "log", isClosing:boolean = true) => {
-        if (!this.fileStream) return this.log("LOGFILE: Specify filepath destination in class constructor", "red");
+    base = (coloredMessage: any, ...messages: any[]) => this.color(this.primaryColor, coloredMessage, ...messages)
+    white = (coloredMessage: any, ...messages: any[]) => this.color(null, coloredMessage, ...messages)
+    green = (coloredMessage: any, ...messages: any[]) => this.color("green", coloredMessage, ...messages)
+    yellow = (coloredMessage: any, ...messages: any[]) => this.color("yellow", coloredMessage, ...messages)
+    blue = (coloredMessage: any, ...messages: any[]) => this.color("blue", coloredMessage, ...messages)
+    magenta = (coloredMessage: any, ...messages: any[]) => this.color("magenta", coloredMessage, ...messages)
+    cyan = (coloredMessage: any, ...messages: any[]) => this.color("cyan", coloredMessage, ...messages)
+    gray = (coloredMessage: any, ...messages: any[]) => this.color("gray", coloredMessage, ...messages)
+    orange = (coloredMessage: any, ...messages: any[]) => this.color("orange", coloredMessage, ...messages)
+    pink = (coloredMessage: any, ...messages: any[]) => this.color("pink", coloredMessage, ...messages)
+    purple = (coloredMessage: any, ...messages: any[]) => this.color("purple", coloredMessage, ...messages)
+    teal = (coloredMessage: any, ...messages: any[]) => this.color("teal", coloredMessage, ...messages)
+    brown = (coloredMessage: any, ...messages: any[]) => this.color("brown", coloredMessage, ...messages)
+    lime = (coloredMessage: any, ...messages: any[]) => this.color("lime", coloredMessage, ...messages)
+    gold = (coloredMessage: any, ...messages: any[]) => this.color("gold", coloredMessage, ...messages)
+    violet = (coloredMessage: any, ...messages: any[]) => this.color("violet", coloredMessage, ...messages)
+
+
+    logFile = (message:string, type:FileLogType = "log", isClosing:boolean = true) => {
+        if (!this.fileStream) return this._log("LOGFILE: Specify filepath destination in class constructor", "red");
 
         const date = this.getDateTimeString().trim();
         const logType = type === "log" ? "  LOG" : "ERROR"
