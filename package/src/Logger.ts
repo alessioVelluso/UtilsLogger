@@ -1,4 +1,4 @@
-import { WriteStream, createWriteStream } from "fs";
+import { WriteStream, createWriteStream, mkdirSync } from "fs";
 import { DateLocales, FileLogType, LogColors, LoggerConstructor } from "../types/generic.types";
 
 export interface ILogger {
@@ -36,7 +36,7 @@ export default class Logger implements ILogger
     protected readonly primaryColor:LogColors = null;
     protected readonly isErrorStackFull:boolean = false;
     constructor(data?:LoggerConstructor) {
-        if (data?.logFilePath) this.fileStream = createWriteStream(data.logFilePath, { flags: 'a' });
+        if (data?.logFilePath) this.fileStream = this.createWriteStream(data.logFilePath);
         if (data?.debug) this.isDebug = data.debug;
         if (data?.locale) this.dateLocale = data.locale;
         if (data?.primaryColor) this.primaryColor = data.primaryColor;
@@ -68,7 +68,11 @@ export default class Logger implements ILogger
     }
 
 
-
+    private createWriteStream = (logFilePath:string):WriteStream => {
+        const dirPath = logFilePath.substring(0, logFilePath.lastIndexOf('/'));
+        mkdirSync(dirPath, { recursive: true });
+        return createWriteStream(logFilePath, { flags: 'a' });
+    }
     protected getDateTimeString = () => {
         const dateObj = new Date();
         return `[${dateObj.toLocaleDateString(this.dateLocale, this.dateOptions)} ${dateObj.toLocaleTimeString(this.dateLocale, this.timeOptions)}]   `;
