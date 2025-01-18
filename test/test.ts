@@ -2,9 +2,12 @@ import { log } from "./utils";
 
 
 // --- Logger
+log.logFile("Ciao");
+log.logFile("Sono un errore", "error");
+log.logFile("Hello world!")
 log.color("green", "Ciao")
 log.base("Hello there, this is a log");
-log.baseFile("Hello there", "log", false);
+log.baseFile("Hello there", "log");
 log.baseFile("An Error", "error");
 
 

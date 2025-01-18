@@ -2,7 +2,7 @@
 
 
 
-`v2.0.1`
+`v3.0.0`
 
 This is a package i made for myself but can surely be helpful to others, feel free to contribute if you like it.
 
@@ -41,7 +41,7 @@ interface ILogger {
     gold: (coloredMessage:any,...messages:any[]) => void;
     violet: (coloredMessage:any,...messages:any[]) => void;
 
-    logFile: (message:string, type?:"log" | "error", isClosing?:boolean) => void;
+    logFile: (message:string, type?:"log" | "error") => void;
 }
 
 
@@ -83,9 +83,9 @@ Or creating a new class extending mine to add some custom utilities
 ```ts
 class MyLogger extends Logger
 {
-    public baseFile = (message:any, type:FileLogType, isClosing:boolean = true) => {
+    public baseFile = (message:any, type:FileLogType) => {
         this.base(message);
-        this.logFile(message, type, isClosing)
+        this.logFile(message, type)
     }
 }
 
@@ -107,7 +107,7 @@ import { log } from "./your/filepath"; // I'm confident about your ide auto-impo
 
 log.color("green", "Ciao")
 log.base("Hello there, this is a log");
-log.baseFile("Hello there", "log", false);
+log.baseFile("Hello there", "log");
 log.baseFile("An Error", "error");
 
 

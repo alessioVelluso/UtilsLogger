@@ -1,2 +1,3 @@
-[05/01/2025 20:33:10]		  LOG:  Hello there
-[05/01/2025 20:33:10]		ERROR:  An Error
+[18/01/2025 15:33:46]		  LOG:  Ciao
+[18/01/2025 15:33:46]		ERROR:  Sono un errore
+[18/01/2025 15:33:46]		  LOG:  Hello world!

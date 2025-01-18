@@ -11,9 +11,9 @@ import { FileLogType, Logger } from "utils-logger-av";
 // (you can obviously avoid to create a class extending mine)
 class MyLogger extends Logger
 {
-    public baseFile = (message:any, type:FileLogType, isClosing:boolean = true) => {
+    public baseFile = (message:any, type:FileLogType) => {
         this.base(message);
-        this.logFile(message, type, isClosing)
+        this.logFile(message, type)
     }
 }
 

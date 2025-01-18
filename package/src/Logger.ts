@@ -1,4 +1,4 @@
-import { WriteStream, createWriteStream, mkdirSync } from "fs";
+import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { DateLocales, FileLogType, LogColors, LoggerConstructor } from "../types/generic.types";
 
 export interface ILogger {
@@ -24,19 +24,19 @@ export interface ILogger {
     gold: (coloredMessage:any,...messages:any[]) => void;
     violet: (coloredMessage:any,...messages:any[]) => void;
 
-    logFile: (message:string, type?:"log" | "error", isClosing?:boolean) => void;
+    logFile: (message:string, type?:"log" | "error") => void;
 }
 
 
 export default class Logger implements ILogger
 {
-    private readonly fileStream:WriteStream = null!;
+    private readonly logFilePath:string = null!;
     private readonly isDebug:boolean = true;
     protected readonly dateLocale:DateLocales = "it-IT";
     protected readonly primaryColor:LogColors = null;
     protected readonly isErrorStackFull:boolean = false;
     constructor(data?:LoggerConstructor) {
-        if (data?.logFilePath) this.fileStream = this.createWriteStream(data.logFilePath);
+        if (data?.logFilePath) this.logFilePath = data.logFilePath;
         if (data?.debug) this.isDebug = data.debug;
         if (data?.locale) this.dateLocale = data.locale;
         if (data?.primaryColor) this.primaryColor = data.primaryColor;
@@ -68,11 +68,6 @@ export default class Logger implements ILogger
     }
 
 
-    private createWriteStream = (logFilePath:string):WriteStream => {
-        const dirPath = logFilePath.substring(0, logFilePath.lastIndexOf('/'));
-        mkdirSync(dirPath, { recursive: true });
-        return createWriteStream(logFilePath, { flags: 'a' });
-    }
     protected getDateTimeString = () => {
         const dateObj = new Date();
         return `[${dateObj.toLocaleDateString(this.dateLocale, this.dateOptions)} ${dateObj.toLocaleTimeString(this.dateLocale, this.timeOptions)}]   `;
@@ -152,12 +147,15 @@ export default class Logger implements ILogger
     violet = (coloredMessage: any, ...messages: any[]) => this.color("violet", coloredMessage, ...messages)
 
 
-    logFile = (message:string, type:FileLogType = "log", isClosing:boolean = true) => {
-        if (!this.fileStream) return this._log("LOGFILE: Specify filepath destination in class constructor", "red");
+    logFile = (message:string, type:FileLogType = "log") => {
+        if (!existsSync(this.logFilePath))
+        {
+            const buildingDirs = this.logFilePath.substring(0, this.logFilePath.lastIndexOf('/'));
+            mkdirSync(buildingDirs, { recursive: true });
+        }
 
         const date = this.getDateTimeString().trim();
         const logType = type === "log" ? "  LOG" : "ERROR"
-        this.fileStream.write(`${date}\t\t${logType}:  ${message}\n`);
-        if (isClosing) this.fileStream.close();
+        appendFileSync(this.logFilePath, `${date}\t\t${logType}:  ${message}\n`)
     }
 }
