@@ -150,8 +150,12 @@ export default class Logger implements ILogger
     logFile = (message:string, type:FileLogType = "log") => {
         if (!existsSync(this.logFilePath))
         {
-            const buildingDirs = this.logFilePath.substring(0, this.logFilePath.lastIndexOf('/'));
-            mkdirSync(buildingDirs, { recursive: true });
+            const lastSlashIndex = this.logFilePath.lastIndexOf('/');
+
+            if (lastSlashIndex !== -1) {
+                const buildingDirs = this.logFilePath.substring(0, lastSlashIndex);
+                mkdirSync(buildingDirs, { recursive: true });
+            }
         }
 
         const date = this.getDateTimeString().trim();

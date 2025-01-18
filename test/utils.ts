@@ -19,7 +19,7 @@ class MyLogger extends Logger
 
 const log = new MyLogger({
     debug:true,
-    logFilePath: "../files/logs.txt",
+    logFilePath: "logs.txt",
     primaryColor: "cyan"
 });
 
