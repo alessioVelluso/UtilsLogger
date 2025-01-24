@@ -1,4 +1,4 @@
-import { FileLogType, Logger } from "utils-logger-av";
+import { FileLogType, Logger, getStringedColor } from "utils-logger-av";
 
 export class Configs
 {
@@ -22,6 +22,6 @@ class MyLogger extends Logger
 }
 
 const log = new MyLogger({ logFilePath: `${Configs.LOG_FOLDER}/logs.log` });
-
-const { getStringedColor:c, icons:i } = log;
+const c = getStringedColor;
+const i = Logger.icons;
 export { c, i, log };

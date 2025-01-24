@@ -1,4 +1,4 @@
-import { FW } from "utils-logger-av";
+import { FW, Logger } from "utils-logger-av";
 
 // --- Logger
 // log.logFile("Ciao");
@@ -41,7 +41,7 @@ console.log("\n");
 })();
 console.log("\n");
 
-for (const color in log.colors) log.color([color as LogColors, "Look at this ...gradient?"]);
+for (const color in Logger.colors) log.color([color as LogColors, "Look at this ...gradient?"]);
 console.log("\n");
 
 

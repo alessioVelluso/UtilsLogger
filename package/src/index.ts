@@ -1,5 +1,5 @@
 export * from "../types/generic.types";
 import FW from "./FileWriter";
-import Logger from "./Logger";
+import Logger, { getStringedColor } from "./Logger";
 
-export { FW, Logger };
+export { FW, getStringedColor, Logger };

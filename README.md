@@ -2,7 +2,7 @@
 
 
 
-`v3.1.0`
+`v3.2.0`
 
 This is a package i made for myself but can surely be helpful to others, feel free to contribute if you like it.
 
@@ -98,14 +98,10 @@ class MyLogger extends Logger
     }
 }
 
-const log = new MyLogger({
-    debug:true,
-    logFilePath: "../files/logs.txt",
-    primaryColor: "cyan"
-});
-
-
-export { log };
+const log = new MyLogger({ logFilePath: `${Configs.LOG_FOLDER}/logs.log` });
+const c = getStringedColor;
+const i = Logger.icons;
+export { c, i, log };
 ```
 
 

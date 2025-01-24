@@ -5,7 +5,6 @@ export interface ILogger {
     // colors:Record<LogColors, string>; --- protected
     // icons:Record<Icons, string>; --- protected
 
-    getStringedColor: (color:LogColors, message:any) => string;
     ok: (message:string) => void;
     nok: (message:string) => void;
 
@@ -34,6 +33,11 @@ export interface ILogger {
 }
 
 
+export const getStringedColor = (color:LogColors, message:any) => {
+    if (typeof message === "object") return Logger.colors[color].replace("%s", `${JSON.stringify(message, null, 2)}`);
+    else return Logger.colors[color].replace("%s", `${message}`)
+}
+
 export default class Logger implements ILogger
 {
     private readonly logFilePath:string = null!;
@@ -50,7 +54,7 @@ export default class Logger implements ILogger
         if (data?.isErrorStackFull !== undefined) this.isErrorStackFull = data.isErrorStackFull
         if (data?.areIconsBeforeText) this.areIconsBeforeText = data.areIconsBeforeText;
 
-        this.colorsKeys = Object.keys(this.colors);
+        this.colorsKeys = Object.keys(Logger.colors);
     }
 
 
@@ -60,7 +64,7 @@ export default class Logger implements ILogger
     protected readonly dateOptions: Intl.DateTimeFormatOptions | undefined = { day: '2-digit', month: '2-digit', year: 'numeric' };
     protected readonly timeOptions: Intl.DateTimeFormatOptions | undefined = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }
     protected readonly colorsKeys:string[];
-    public readonly colors:Record<LogColors, string> = {
+    public static readonly colors:Record<LogColors, string> = {
         red: "\x1b[31m%s\x1b[0m",
         green: "\x1b[32m%s\x1b[0m",
         yellow: "\x1b[33m%s\x1b[0m",
@@ -77,7 +81,7 @@ export default class Logger implements ILogger
         gold: "\x1b[38;5;220m%s\x1b[0m",
         violet: "\x1b[38;5;177m%s\x1b[0m"
     }
-    public readonly icons: Record<Icons, string> = {
+    public static readonly  icons: Record<Icons, string> = {
         check: "\u2705",          // ✅ Check verde (OK)
         cross: "\u274C",          // ❌ Croce rossa (Errore)
         warning: "\u26A0",        // ⚠ Simbolo di avvertimento
@@ -126,8 +130,8 @@ export default class Logger implements ILogger
         const dateString = this._getDateTimeString();
         if (!color) console.log(`${dateString}${message}`);
         else {
-            if (typeof message === "object") console.log(this.colors[color], `${dateString}${JSON.stringify(message, null, 2)}`);
-            else console.log(this.colors[color], `${dateString}${message}`);
+            if (typeof message === "object") console.log(Logger.colors[color], `${dateString}${JSON.stringify(message, null, 2)}`);
+            else console.log(Logger.colors[color], `${dateString}${message}`);
             // if (typeof message === "object") console.log(this.colors[color].replace("%s", `${dateString}${JSON.stringify(message, null, 2)}`), );
             // else console.log(this.colors[color].replace("%s", `${dateString}${message}`));
         }
@@ -149,8 +153,8 @@ export default class Logger implements ILogger
         if (!this.isDebug) return;
 
         for (const message of messages) {
-            if (typeof message === "object") console.log(this.colors["gray"], JSON.stringify(message, null, 2));
-            else console.log(this.colors["gray"], `${message}`);
+            if (typeof message === "object") console.log(Logger.colors["gray"], JSON.stringify(message, null, 2));
+            else console.log(Logger.colors["gray"], `${message}`);
         }
     }
 
@@ -171,20 +175,16 @@ export default class Logger implements ILogger
             if (!errorMessage) this._log(err, "red");
             else {
                 this._log(errorMessage, "red")
-                if (stackTrace) console.log(this.colors["gray"], stackTrace)
+                if (stackTrace) console.log(Logger.colors["gray"], stackTrace)
             }
         }
     }
 
-    getStringedColor = (color:LogColors, message:any) => {
-        if (typeof message === "object") return this.colors[color].replace("%s", `${JSON.stringify(message, null, 2)}`);
-        else return this.colors[color].replace("%s", `${message}`)
-    }
     color = ([firstColor, firstMessage]:[LogColors | null, string], ...messages: string[]) =>
     {
         if (!this.isDebug) return;
         let finalMessage:Array<LogColors | any> = [];
-        finalMessage.push(firstColor === null ? `${this._getDateTimeString()}${firstMessage}` : this.colors[firstColor].replace("%s", `${this._getDateTimeString()}${firstMessage}`))
+        finalMessage.push(firstColor === null ? `${this._getDateTimeString()}${firstMessage}` : Logger.colors[firstColor].replace("%s", `${this._getDateTimeString()}${firstMessage}`))
         for (const message of messages) finalMessage.push(message);
 
         console.log(...finalMessage);
@@ -192,12 +192,12 @@ export default class Logger implements ILogger
 
     ok = (message:string) => {
         if (!this.areIconsBeforeText) this._color("green", `${message}  \u2705`);
-        else this._color("green", `${this.icons.check}  ${message}`);
+        else this._color("green", `${Logger.icons.check}  ${message}`);
     };
 
     nok = (message:string) => {
         if (!this.areIconsBeforeText) this._color("red", `${message}  \u274C`);
-        else this._color("red", `${this.icons.cross}  ${message}`);
+        else this._color("red", `${Logger.icons.cross}  ${message}`);
     };
 
     base = (coloredMessage: any, ...messages: any[]) => this._color(this.primaryColor, coloredMessage, ...messages)
