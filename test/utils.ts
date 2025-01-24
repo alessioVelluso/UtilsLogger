@@ -1,5 +1,9 @@
 import { FileLogType, Logger } from "utils-logger-av";
 
+export class Configs
+{
+    static LOG_FOLDER = "LOGS";
+}
 // You can override  it to use it a class for all your different utils, or simply use the default class like
 // export default new Logger({
 //     debug:true,
@@ -17,11 +21,7 @@ class MyLogger extends Logger
     }
 }
 
-const log = new MyLogger({
-    debug:true,
-    logFilePath: "logs.txt",
-    primaryColor: "cyan"
-});
+const log = new MyLogger({ logFilePath: `${Configs.LOG_FOLDER}/logs.log` });
 
-
-export { log };
+const { getStringedColor:c, icons:i } = log;
+export { c, i, log };

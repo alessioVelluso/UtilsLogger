@@ -2,7 +2,7 @@
 
 
 
-`v3.0.1`
+`v3.1.0`
 
 This is a package i made for myself but can surely be helpful to others, feel free to contribute if you like it.
 
@@ -13,20 +13,28 @@ This is a package i made for myself but can surely be helpful to others, feel fr
 ```bash
 npm install utils-logger-av
 ```
+You basically have the **Logger** class and the **FW** (filewriter) class.
+1. The Logger class get us to log with colors and it's an extension of the previous one (not direclty, the methods are just doubled).
+2. The FW class is a basic extendable/implementable class that impose you to specify a filepath for your logs. It will then print a nice-formatted log on that file.
 
-The Logger is just an exported class, the interface is as it follows:
 
 
 ## Logger Class
 
 ```ts
-interface ILogger {
-    logDetail: (coloredMessage:any, ...messages:any[]) => void;
-    logError: (coloredMessage:any,...errs:any[]) => void;
+export interface ILogger {
+    protected colors:Record<LogColors, string>;
+    protected icons:Record<Icons, string>;
 
+    getStringedColor: (color:LogColors, message:any) => string;
+    ok: (message:string) => void;
+    nok: (message:string) => void;
+
+    color: ([LogColors | null, string], ...messages: string[]) => void;
     base: (coloredMessage:any, ...messages:any[]) => void;
     white: (coloredMessage:any, ...messages:any[]) => void;
     green: (coloredMessage:any,...messages:any[]) => void;
+    red: (coloredMessage:any,...messages:any[]) => void;
     yellow: (coloredMessage:any,...messages:any[]) => void;
     blue: (coloredMessage:any,...messages:any[]) => void;
     magenta: (coloredMessage:any,...messages:any[]) => void;
@@ -42,17 +50,17 @@ interface ILogger {
     violet: (coloredMessage:any,...messages:any[]) => void;
 
     logFile: (message:string, type?:"log" | "error") => void;
+    logDetail: (coloredMessage:any, ...messages:any[]) => void;
+    logError: (coloredMessage:any,...errs:any[]) => void;
 }
 
-
-private readonly fileStream:WriteStream = null!;
+// --- Default constructor values
+private readonly logFilePath:string = null!;
 private readonly isDebug:boolean = true;
 protected readonly dateLocale:DateLocales = "it-IT";
-protected readonly primaryColor:LogColors = null;
+protected readonly primaryColor:LogColors | null = null;
 protected readonly isErrorStackFull:boolean = false;
-constructor(data?:LoggerConstructor) {
-	if (data?.logFilePath) this.fileStream = createWriteStream(data.logFilePath, { flags: 'a' });
-}
+protected readonly areIconsBeforeText:boolean = false;
 
 export interface LoggerConstructor {
     logFilePath?:string,
@@ -60,6 +68,7 @@ export interface LoggerConstructor {
     locale?: DateLocales,           // to set the locale timezone view
     primaryColor?:LogColors,        // set your color for the "base" method. default is white
     isErrorStackFull?:boolean       // if set to true, logError will log the full stack trace
+    areIconsBeforeText?:boolean,
 }
 ```
 
@@ -119,4 +128,48 @@ log.logError("This is an error", "err")
 log.lime("This is lime")
 log.teal("This is teal")
 log.magenta("This is magenta")
+```
+
+## FW Class
+
+```ts
+protected readonly logFilePath:string;
+protected readonly dateLocale:DateLocales = "it-IT";
+constructor (logFilePath:string, locale?:DateLocales)
+{
+    this.logFilePath = logFilePath;
+    if (locale) this.dateLocale = locale;
+}
+
+write = (message:string, type:FileLogType = "log") => void;
+```
+
+Use it to create micro-configurations for splitted log logics:
+```ts
+class BaseService extends FW
+{
+    protected readonly serviceName:string;
+    constructor(serviceName:string) {
+        super(`${Configs.LOG_FOLDER}/${serviceName}`);
+        this.serviceName = serviceName;
+    }
+
+    protected writeLog = (message:string) => this.write(message);
+    protected writeError = (message:string) => this.write(message, "error");
+}
+
+class MyService extends BaseService
+{
+    constructor()
+    {
+        super("Servizio_1");
+    }
+
+    firstServiceCustomMethod = () => {
+        this.writeLog("Hi this is the first-service method")
+    }
+}
+
+const serviceTest = new MyService();
+serviceTest.firstServiceCustomMethod();
 ```

@@ -1,4 +1,5 @@
-export * from "../types/generic.types"
+export * from "../types/generic.types";
+import FW from "./FileWriter";
 import Logger from "./Logger";
 
-export { Logger };
+export { FW, Logger };
